@@ -1,58 +1,16 @@
-wdbc:
-  name: "Breast Cancer Wisconsin (Diagnostic)"
-  uci_id: 17
-  doi: "10.24432/C5DW2B"
+datasets:
 
-  rows: 569
-  features: 30
+  wdbc:
+    features_path: data/raw/wdbc/features.csv
+    target_path: data/raw/wdbc/target.csv
+    target_column: Diagnosis
 
-  target_column: "Diagnosis"
-  positive_class: "M"
-  negative_class: "B"
+  adult:
+    features_path: data/raw/adult/features.csv
+    target_path: data/raw/adult/target.csv
+    target_column: income
 
-  primary_metric: "roc_auc"
-
-  numeric_features: 30
-  categorical_features: 0
-
-  missing_values: false
-
-
-adult:
-  name: "Adult"
-  uci_id: 2
-  doi: "10.24432/C5XW20"
-
-  rows: 48842
-  features: 14
-
-  target_column: "income"
-  positive_class: ">50K"
-  negative_class: "<=50K"
-
-  primary_metric: "average_precision"
-
-  numeric_features: 6
-  categorical_features: 8
-
-  missing_values: true
-
-
-bank_marketing:
-  name: "Bank Marketing"
-  uci_id: 222
-  doi: "10.24432/C5K306"
-
-  rows: 45211
-  features: 16
-
-  target_column: "y"
-  positive_class: "yes"
-  negative_class: "no"
-
-  primary_metric: "average_precision"
-
-  numeric_features: 7
-  categorical_features: 9
-
-  missing_values: false
+  bank_marketing:
+    features_path: data/raw/bank_marketing/features.csv
+    target_path: data/raw/bank_marketing/target.csv
+    target_column: y

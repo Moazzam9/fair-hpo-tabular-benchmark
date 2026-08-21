@@ -1,0 +1,22 @@
+datasets:
+
+  wdbc:
+    enabled: false
+    sensitive_attribute: null
+    privileged_group: null
+    unprivileged_group: null
+    positive_label: M
+
+  adult:
+    enabled: true
+    sensitive_attribute: sex
+    privileged_group: Male
+    unprivileged_group: Female
+    positive_label: ">50K"
+
+  bank_marketing:
+    enabled: false
+    sensitive_attribute: null
+    privileged_group: null
+    unprivileged_group: null
+    positive_label: yes
