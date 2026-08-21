@@ -30,6 +30,10 @@ RESULTS_DIR.mkdir(exist_ok=True)
 # dataset when additional datasets are configured.
 OUTER_FOLDS = [
     1,
+    2,
+    3,
+    4,
+    5,
 ]
 
 MODELS = [
@@ -42,7 +46,7 @@ OPTIMIZERS = [
     "bayesian",
 ]
 
-N_ITER = 2
+N_ITER = 20
 
 RANDOM_STATE = 42
 
