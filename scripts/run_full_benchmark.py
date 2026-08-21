@@ -25,8 +25,11 @@ RESULTS_DIR.mkdir(exist_ok=True)
 # BENCHMARK SETTINGS
 # ------------------------------------------------------------
 
-DATASETS = [
-    "adult",
+# Dataset names are loaded automatically from configs/datasets.yaml.
+# This prevents the benchmark from accidentally running only one
+# dataset when additional datasets are configured.
+OUTER_FOLDS = [
+    1,
 ]
 
 MODELS = [
@@ -37,10 +40,6 @@ MODELS = [
 OPTIMIZERS = [
     "random",
     "bayesian",
-]
-
-OUTER_FOLDS = [
-    1,
 ]
 
 N_ITER = 2
@@ -137,20 +136,27 @@ def get_search_space(
     model_name: str,
     optimizer: str,
 ) -> dict[str, Any]:
+    """
+    Return the search space for a model/optimizer combination.
+    """
+
     if model_name == "random_forest":
         if optimizer == "random":
             return RANDOM_FOREST_RANDOM_SPACE
 
-        return RANDOM_FOREST_BAYESIAN_SPACE
+        if optimizer == "bayesian":
+            return RANDOM_FOREST_BAYESIAN_SPACE
 
-    if model_name == "xgboost":
+    elif model_name == "xgboost":
         if optimizer == "random":
             return XGBOOST_RANDOM_SPACE
 
-        return XGBOOST_BAYESIAN_SPACE
+        if optimizer == "bayesian":
+            return XGBOOST_BAYESIAN_SPACE
 
     raise ValueError(
-        f"Unknown model: {model_name}"
+        f"Unknown model/optimizer combination: "
+        f"{model_name}/{optimizer}"
     )
 
 
@@ -158,13 +164,16 @@ def get_sensitive_column(
     dataset_name: str,
     fairness_config: dict[str, Any],
 ) -> str | None:
+    """
+    Get the sensitive attribute configured for a dataset.
 
-    dataset_config = fairness_config.get(
-        "datasets",
-        {},
-    ).get(
-        dataset_name,
-        {},
+    If fairness evaluation is disabled for the dataset, return None.
+    """
+
+    dataset_config = (
+        fairness_config
+        .get("datasets", {})
+        .get(dataset_name, {})
     )
 
     enabled = dataset_config.get(
@@ -180,6 +189,29 @@ def get_sensitive_column(
     )
 
 
+def get_configured_datasets(
+    dataset_config: dict[str, Any],
+) -> list[str]:
+    """
+    Return every dataset defined in configs/datasets.yaml.
+
+    The order in the YAML file is preserved.
+    """
+
+    datasets = dataset_config.get(
+        "datasets",
+        {},
+    )
+
+    if not datasets:
+        raise ValueError(
+            "No datasets are configured in "
+            "configs/datasets.yaml."
+        )
+
+    return list(datasets.keys())
+
+
 def run_one_experiment(
     dataset_name: str,
     fold_id: int,
@@ -187,6 +219,9 @@ def run_one_experiment(
     optimizer: str,
     sensitive_column: str | None,
 ) -> dict[str, Any]:
+    """
+    Run one complete nested-HPO experiment.
+    """
 
     search_space = get_search_space(
         model_name,
@@ -281,94 +316,12 @@ def run_one_experiment(
     return row
 
 
-# ------------------------------------------------------------
-# MAIN
-# ------------------------------------------------------------
-
-def main():
-
-    print("=" * 80)
-    print("FULL HPO FAIRNESS BENCHMARK")
-    print("=" * 80)
-
-    dataset_config = load_dataset_config()
-    fairness_config = load_fairness_config()
-
-    print()
-    print(
-        "Configured datasets:",
-        list(
-            dataset_config.get(
-                "datasets",
-                {}
-            ).keys()
-        ),
-    )
-
-    all_results: list[dict[str, Any]] = []
-
-    for dataset_name in DATASETS:
-
-        if dataset_name not in dataset_config.get(
-            "datasets",
-            {}
-        ):
-            raise ValueError(
-                f"Dataset '{dataset_name}' "
-                f"is not defined in configs/datasets.yaml"
-            )
-
-        sensitive_column = get_sensitive_column(
-            dataset_name,
-            fairness_config,
-        )
-
-        print()
-        print(
-            f"Sensitive attribute for "
-            f"{dataset_name}: "
-            f"{sensitive_column}"
-        )
-
-        for fold_id in OUTER_FOLDS:
-
-            for model_name in MODELS:
-
-                for optimizer in OPTIMIZERS:
-
-                    try:
-
-                        row = run_one_experiment(
-                            dataset_name=dataset_name,
-                            fold_id=fold_id,
-                            model_name=model_name,
-                            optimizer=optimizer,
-                            sensitive_column=sensitive_column,
-                        )
-
-                        all_results.append(row)
-
-                    except Exception as exc:
-
-                        print()
-                        print(
-                            "EXPERIMENT FAILED"
-                        )
-                        print(
-                            f"Dataset: {dataset_name}"
-                        )
-                        print(
-                            f"Fold: {fold_id}"
-                        )
-                        print(
-                            f"Model: {model_name}"
-                        )
-                        print(
-                            f"Optimizer: {optimizer}"
-                        )
-                        print(
-                            f"Error: {exc}"
-                        )
+def save_results(
+    all_results: list[dict[str, Any]],
+) -> pd.DataFrame:
+    """
+    Save benchmark results to CSV and JSON.
+    """
 
     if not all_results:
         raise RuntimeError(
@@ -380,13 +333,13 @@ def main():
     )
 
     csv_path = (
-        RESULTS_DIR /
-        "benchmark_results.csv"
+        RESULTS_DIR
+        / "benchmark_results.csv"
     )
 
     json_path = (
-        RESULTS_DIR /
-        "benchmark_results.json"
+        RESULTS_DIR
+        / "benchmark_results.json"
     )
 
     results_df.to_csv(
@@ -406,36 +359,247 @@ def main():
         )
 
     print()
-    print("=" * 80)
-    print("BENCHMARK COMPLETE")
-    print("=" * 80)
-
-    print()
-    print(
-        results_df[
-            [
-                "dataset",
-                "outer_fold",
-                "model",
-                "optimizer",
-                "accuracy",
-                "balanced_accuracy",
-                "f1",
-                "roc_auc",
-                "demographic_parity_difference",
-                "equal_opportunity_difference",
-                "runtime_seconds",
-            ]
-        ].to_string(index=False)
-    )
-
-    print()
     print(
         f"CSV saved to: {csv_path}"
     )
 
     print(
         f"JSON saved to: {json_path}"
+    )
+
+    return results_df
+
+
+# ------------------------------------------------------------
+# MAIN
+# ------------------------------------------------------------
+
+def main() -> None:
+    """
+    Run the complete configured benchmark.
+
+    Every configured dataset is evaluated with:
+
+        random_forest + random
+        random_forest + bayesian
+        xgboost + random
+        xgboost + bayesian
+
+    Each experiment is isolated so a failure does not terminate
+    the remaining benchmark.
+    """
+
+    print("=" * 80)
+    print("FULL HPO FAIRNESS BENCHMARK")
+    print("=" * 80)
+
+    # --------------------------------------------------------
+    # Load configuration.
+    # --------------------------------------------------------
+
+    dataset_config = load_dataset_config()
+    fairness_config = load_fairness_config()
+
+    datasets = get_configured_datasets(
+        dataset_config
+    )
+
+    print()
+    print(
+        "Configured datasets:",
+        datasets,
+    )
+
+    print()
+    print(
+        "Models:",
+        MODELS,
+    )
+
+    print()
+    print(
+        "Optimizers:",
+        OPTIMIZERS,
+    )
+
+    print()
+    print(
+        "Outer folds:",
+        OUTER_FOLDS,
+    )
+
+    print()
+    print(
+        "HPO iterations:",
+        N_ITER,
+    )
+
+    # --------------------------------------------------------
+    # Validate dataset configuration before starting.
+    # --------------------------------------------------------
+
+    configured_dataset_map = dataset_config.get(
+        "datasets",
+        {},
+    )
+
+    for dataset_name in datasets:
+        if dataset_name not in configured_dataset_map:
+            raise ValueError(
+                f"Dataset '{dataset_name}' "
+                f"is not defined in configs/datasets.yaml"
+            )
+
+    # --------------------------------------------------------
+    # Run benchmark.
+    # --------------------------------------------------------
+
+    all_results: list[dict[str, Any]] = []
+
+    total_experiments = (
+        len(datasets)
+        * len(OUTER_FOLDS)
+        * len(MODELS)
+        * len(OPTIMIZERS)
+    )
+
+    experiment_number = 0
+
+    for dataset_name in datasets:
+
+        sensitive_column = get_sensitive_column(
+            dataset_name,
+            fairness_config,
+        )
+
+        print()
+        print("-" * 80)
+        print(
+            f"Dataset: {dataset_name}"
+        )
+        print(
+            f"Sensitive attribute: "
+            f"{sensitive_column}"
+        )
+        print("-" * 80)
+
+        for fold_id in OUTER_FOLDS:
+
+            for model_name in MODELS:
+
+                for optimizer in OPTIMIZERS:
+
+                    experiment_number += 1
+
+                    print()
+                    print(
+                        f"Experiment "
+                        f"{experiment_number}/"
+                        f"{total_experiments}"
+                    )
+
+                    try:
+                        row = run_one_experiment(
+                            dataset_name=dataset_name,
+                            fold_id=fold_id,
+                            model_name=model_name,
+                            optimizer=optimizer,
+                            sensitive_column=sensitive_column,
+                        )
+
+                        all_results.append(row)
+
+                    except Exception as exc:
+
+                        print()
+                        print("=" * 80)
+                        print("EXPERIMENT FAILED")
+                        print("=" * 80)
+
+                        print(
+                            f"Dataset: {dataset_name}"
+                        )
+
+                        print(
+                            f"Fold: {fold_id}"
+                        )
+
+                        print(
+                            f"Model: {model_name}"
+                        )
+
+                        print(
+                            f"Optimizer: {optimizer}"
+                        )
+
+                        print(
+                            f"Error: {exc}"
+                        )
+
+                        print(
+                            "Continuing with the next experiment..."
+                        )
+
+    # --------------------------------------------------------
+    # Save results.
+    # --------------------------------------------------------
+
+    results_df = save_results(
+        all_results
+    )
+
+    # --------------------------------------------------------
+    # Final summary.
+    # --------------------------------------------------------
+
+    print()
+    print("=" * 80)
+    print("BENCHMARK COMPLETE")
+    print("=" * 80)
+
+    print()
+    print(
+        f"Successful experiments: "
+        f"{len(all_results)}/{total_experiments}"
+    )
+
+    print()
+
+    summary_columns = [
+        "dataset",
+        "outer_fold",
+        "model",
+        "optimizer",
+        "accuracy",
+        "balanced_accuracy",
+        "f1",
+        "roc_auc",
+        "demographic_parity_difference",
+        "equal_opportunity_difference",
+        "runtime_seconds",
+    ]
+
+    available_columns = [
+        column
+        for column in summary_columns
+        if column in results_df.columns
+    ]
+
+    print(
+        results_df[
+            available_columns
+        ].to_string(index=False)
+    )
+
+    print()
+    print(
+        f"CSV saved to: "
+        f"{RESULTS_DIR / 'benchmark_results.csv'}"
+    )
+
+    print(
+        f"JSON saved to: "
+        f"{RESULTS_DIR / 'benchmark_results.json'}"
     )
 
 
