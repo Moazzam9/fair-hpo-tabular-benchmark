@@ -1,3 +1,4 @@
+import pytest
 import pandas as pd
 
 from fair_hpo.data.preprocessing import (
@@ -13,6 +14,7 @@ DATASETS = [
 ]
 
 
+@pytest.mark.parametrize("name", DATASETS)
 def test_dataset(name):
     print(f"\n===== TESTING {name.upper()} =====")
 
@@ -68,16 +70,3 @@ def test_dataset(name):
     assert X_test_transformed.isna().sum().sum() == 0
 
     print(f"{name}: PREPROCESSING PASS")
-
-
-def main():
-    for name in DATASETS:
-        test_dataset(name)
-
-    print(
-        "\nAll preprocessing tests passed."
-    )
-
-
-if __name__ == "__main__":
-    main()
