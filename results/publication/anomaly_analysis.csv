@@ -1,0 +1,6 @@
+dataset,outer_fold,model,optimizer,runtime_seconds,group_q3,group_iqr,iqr_upper_bound,exceeds_upper_bound_ratio,anomaly_category,is_adult_xgboost_bayesian_fold5,description
+adult,2,random_forest,bayesian,596.7930085999978,533.8154892999955,26.537736699996458,573.6220943499902,1.0403940407425627,Runtime Outlier,False,Runtime of 596.793s exceeds IQR upper bound (573.622s).
+adult,5,xgboost,bayesian,51992.5874668,365.9980121999979,3.1399487999951816,370.7079353999907,140.252156757045,Extreme Runtime Outlier,True,Extreme runtime observation of 51992.587s (~14.44h) substantially exceeding IQR threshold (370.708s).
+bank_marketing,3,random_forest,random,827.3017194999993,639.9981664000079,106.74536990001798,800.1162212500349,1.0339769367598772,Runtime Outlier,False,Runtime of 827.302s exceeds IQR upper bound (800.116s).
+bank_marketing,2,xgboost,bayesian,352.5107616999885,292.2957097999897,30.695393199988814,338.33879959997296,1.0418868959657344,Runtime Outlier,False,Runtime of 352.511s exceeds IQR upper bound (338.339s).
+wdbc,1,xgboost,random,27.18358370000351,26.29875469999388,0.4186417999881087,26.92671739997604,1.0095394583829849,Runtime Outlier,False,Runtime of 27.184s exceeds IQR upper bound (26.927s).
