@@ -1,0 +1,45 @@
+comparison,scope,metric,left_method,right_method,pairing,effect_size,effect_size_name,effect_interpretation
+model,all_datasets,accuracy,random_forest,xgboost,dataset + optimizer + outer_fold,0.7668794222471232,Cohen's dz,medium
+model,all_datasets,balanced_accuracy,random_forest,xgboost,dataset + optimizer + outer_fold,1.4123864635578482,Cohen's dz,large
+model,all_datasets,f1,random_forest,xgboost,dataset + optimizer + outer_fold,1.4773761105338168,Cohen's dz,large
+model,all_datasets,roc_auc,random_forest,xgboost,dataset + optimizer + outer_fold,0.9118362285303406,Cohen's dz,large
+model,all_datasets,runtime_seconds,random_forest,xgboost,dataset + optimizer + outer_fold,0.16380362140140367,Cohen's dz,negligible
+optimizer,all_datasets,accuracy,random,bayesian,dataset + model + outer_fold,0.26157436885209906,Cohen's dz,small
+optimizer,all_datasets,balanced_accuracy,random,bayesian,dataset + model + outer_fold,0.4023273763910542,Cohen's dz,small
+optimizer,all_datasets,f1,random,bayesian,dataset + model + outer_fold,0.5364400716438656,Cohen's dz,medium
+optimizer,all_datasets,roc_auc,random,bayesian,dataset + model + outer_fold,0.46345961451976997,Cohen's dz,small
+optimizer,all_datasets,runtime_seconds,random,bayesian,dataset + model + outer_fold,0.18367809717591416,Cohen's dz,negligible
+model,wdbc,accuracy,random_forest,xgboost,optimizer + outer_fold,0.6194244162099143,Cohen's dz,medium
+model,wdbc,balanced_accuracy,random_forest,xgboost,optimizer + outer_fold,0.6308800409826016,Cohen's dz,medium
+model,wdbc,f1,random_forest,xgboost,optimizer + outer_fold,0.6220455139293063,Cohen's dz,medium
+model,wdbc,roc_auc,random_forest,xgboost,optimizer + outer_fold,0.5684477500846989,Cohen's dz,medium
+model,wdbc,runtime_seconds,random_forest,xgboost,optimizer + outer_fold,-4.1178710073970635,Cohen's dz,large
+model,adult,accuracy,random_forest,xgboost,optimizer + outer_fold,3.059608825833659,Cohen's dz,large
+model,adult,balanced_accuracy,random_forest,xgboost,optimizer + outer_fold,2.5549988163532724,Cohen's dz,large
+model,adult,f1,random_forest,xgboost,optimizer + outer_fold,4.262272461091057,Cohen's dz,large
+model,adult,roc_auc,random_forest,xgboost,optimizer + outer_fold,2.170168052976653,Cohen's dz,large
+model,adult,runtime_seconds,random_forest,xgboost,optimizer + outer_fold,0.3047979973814532,Cohen's dz,small
+model,bank_marketing,accuracy,random_forest,xgboost,optimizer + outer_fold,0.8314847761350945,Cohen's dz,large
+model,bank_marketing,balanced_accuracy,random_forest,xgboost,optimizer + outer_fold,3.0784002965086383,Cohen's dz,large
+model,bank_marketing,f1,random_forest,xgboost,optimizer + outer_fold,2.723183215054335,Cohen's dz,large
+model,bank_marketing,roc_auc,random_forest,xgboost,optimizer + outer_fold,1.134190978834909,Cohen's dz,large
+model,bank_marketing,runtime_seconds,random_forest,xgboost,optimizer + outer_fold,-3.101749550954958,Cohen's dz,large
+optimizer,wdbc,accuracy,random,bayesian,model + outer_fold,-0.253546276418555,Cohen's dz,small
+optimizer,wdbc,balanced_accuracy,random,bayesian,model + outer_fold,-0.4196595343937247,Cohen's dz,small
+optimizer,wdbc,f1,random,bayesian,model + outer_fold,-0.300480927241312,Cohen's dz,small
+optimizer,wdbc,roc_auc,random,bayesian,model + outer_fold,-0.316080752545796,Cohen's dz,small
+optimizer,wdbc,runtime_seconds,random,bayesian,model + outer_fold,5.315589275572085,Cohen's dz,large
+optimizer,adult,accuracy,random,bayesian,model + outer_fold,1.334694884168261,Cohen's dz,large
+optimizer,adult,balanced_accuracy,random,bayesian,model + outer_fold,0.5761186014107085,Cohen's dz,medium
+optimizer,adult,f1,random,bayesian,model + outer_fold,1.2647599462986232,Cohen's dz,large
+optimizer,adult,roc_auc,random,bayesian,model + outer_fold,1.0689384680539795,Cohen's dz,large
+optimizer,adult,runtime_seconds,random,bayesian,model + outer_fold,0.3167011271914156,Cohen's dz,small
+optimizer,bank_marketing,accuracy,random,bayesian,model + outer_fold,0.2535311279778281,Cohen's dz,small
+optimizer,bank_marketing,balanced_accuracy,random,bayesian,model + outer_fold,1.0412738617653765,Cohen's dz,large
+optimizer,bank_marketing,f1,random,bayesian,model + outer_fold,0.9381072240344238,Cohen's dz,large
+optimizer,bank_marketing,roc_auc,random,bayesian,model + outer_fold,0.32923052640197764,Cohen's dz,small
+optimizer,bank_marketing,runtime_seconds,random,bayesian,model + outer_fold,0.09178136256965233,Cohen's dz,negligible
+fairness_model,adult,demographic_parity_difference,random_forest,xgboost,optimizer + outer_fold,0.14151214342304613,Cohen's dz,negligible
+fairness_optimizer,adult,demographic_parity_difference,random,bayesian,model + outer_fold,-0.4465834663475031,Cohen's dz,small
+fairness_model,adult,equal_opportunity_difference,random_forest,xgboost,optimizer + outer_fold,-0.4546204696829999,Cohen's dz,small
+fairness_optimizer,adult,equal_opportunity_difference,random,bayesian,model + outer_fold,-0.1726645762728584,Cohen's dz,negligible
