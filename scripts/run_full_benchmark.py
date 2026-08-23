@@ -20,6 +20,11 @@ from fair_hpo.experiments.hpo import (
 RESULTS_DIR = Path("results")
 RESULTS_DIR.mkdir(exist_ok=True)
 
+# Per-experiment HPO histories are saved here so that convergence analysis
+# can be performed without rerunning the benchmark.
+HISTORY_DIR = RESULTS_DIR / "history"
+HISTORY_DIR.mkdir(exist_ok=True)
+
 
 # ------------------------------------------------------------
 # BENCHMARK SETTINGS
@@ -294,6 +299,43 @@ def run_one_experiment(
         ),
         **outer_result,
     }
+
+    # ----------------------------------------------------------
+    # Persist per-experiment HPO iteration history so that
+    # convergence analysis can be performed post-hoc without
+    # rerunning the benchmark.
+    #
+    # File naming: <dataset>_<model>_<optimizer>_fold<N>.json
+    # Each file contains the full list of iteration records
+    # returned by run_random_search / run_bayesian_search,
+    # including: iteration index, hyperparameters tried,
+    # inner-CV metrics, and objective score.
+    # ----------------------------------------------------------
+
+    history_filename = (
+        f"{dataset_name}_{model_name}_{optimizer}"
+        f"_fold{fold_id}.json"
+    )
+    history_path = HISTORY_DIR / history_filename
+
+    with history_path.open("w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "dataset": dataset_name,
+                "outer_fold": fold_id,
+                "model": model_name,
+                "optimizer": optimizer,
+                "best_params": result["best_params"],
+                "best_objective_score": result[
+                    "best_objective_score"
+                ],
+                "history": result["history"],
+            },
+            f,
+            indent=2,
+            default=str,
+        )
+
 
     print()
     print("Best parameters:")
