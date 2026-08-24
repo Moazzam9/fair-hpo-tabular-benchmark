@@ -1,132 +1,122 @@
 # Fair HPO Tabular Benchmark
 
-**A reproducible empirical benchmark of conventional and metaheuristic hyperparameter optimization methods for tabular classification.**
+**An Empirical Audit of Performance, Fairness, and Compute Cost in Tabular Hyperparameter Optimization**
 
-This project investigates the comparative performance, computational cost, convergence behavior, fairness characteristics, and statistical robustness of hyperparameter optimization (HPO) strategies under a controlled experimental framework.
-
-The completed benchmark currently evaluates Random Search and Bayesian Optimization using Random Forest and XGBoost across three tabular classification datasets.
+**Author:** Moazzam Azam — Independent Researcher — moazzamkk13@gmail.com
 
 ---
 
-## Research Objective
+## Overview
 
-The primary objective is to determine how different HPO strategies compare when evaluated under a consistent and reproducible protocol.
+This repository contains the full code, results, and manuscript for a controlled empirical audit comparing **Random Search** and **Bayesian Optimization** applied to **Random Forest** and **XGBoost** classifiers across three tabular classification datasets.
 
-The broader research design considers:
+The audit evaluates three dimensions that are rarely combined in HPO literature:
 
-* Default hyperparameters
-* Grid Search
-* Random Search
-* Bayesian Optimization
-* Genetic Algorithm (GA)
-* Particle Swarm Optimization (PSO)
-* Differential Evolution (DE)
+- **Predictive Performance** — Accuracy, Balanced Accuracy, F1-score, ROC AUC
+- **Group Fairness** — Demographic Parity Difference (DPD), Equal Opportunity Difference (EOD)
+- **Computational Cost** — Runtime distributions and outlier analysis
 
-The currently completed benchmark analysis focuses on:
+---
 
-* Random Search
-* Bayesian Optimization
+## Paper / Manuscript
 
-The benchmark uses three tabular classification datasets:
+The full research paper is available in the `docs/` folder:
 
-* Breast Cancer Wisconsin Diagnostic (WDBC)
-* Adult
-* Bank Marketing
+| Format | File |
+|---|---|
+| Markdown | [`docs/manuscript_draft.md`](docs/manuscript_draft.md) |
+| LaTeX (for PDF) | [`docs/manuscript_draft.tex`](docs/manuscript_draft.tex) |
+| Bibliography | [`docs/manuscript.bib`](docs/manuscript.bib) |
+| Figures | [`docs/figures/`](docs/figures/) |
 
-and two classification models:
+> To compile the PDF: upload the `docs/` folder contents to [Overleaf](https://www.overleaf.com) and click **Compile**.
 
-* Random Forest
-* XGBoost
+---
 
-The purpose is to provide controlled empirical evidence rather than assume in advance that any particular optimizer or model is universally superior.
+## Key Findings
+
+- **XGBoost outperforms Random Forest** across all predictive metrics (balanced accuracy 0.8186 vs. 0.7973, p < 0.001, Cohen's d_z = 1.41 — large effect)
+- **Bayesian HPO** provides only marginal gains over Random Search (balanced accuracy +0.0038, small effect)
+- **Fairness disparities persist** on the Adult dataset regardless of optimizer choice (DPD ≈ 0.16–0.18, p > 0.05 for optimizer comparison)
+- **Runtime anomaly identified**: A single XGBoost Bayesian fold took 14.44 hours (140× the group median), attributed to a system-level execution artifact, not hyperparameter geometry
+
+---
+
+## Benchmark Matrix
+
+| Component | Detail |
+|---|---|
+| Datasets | WDBC, Adult, Bank Marketing |
+| Models | Random Forest, XGBoost |
+| HPO Methods | Random Search, Bayesian Optimization |
+| Outer Folds | 5-fold nested cross-validation |
+| Total Experiments | 60 (3 datasets × 2 models × 2 optimizers × 5 folds) |
+| Fairness Dataset | Adult (`sex` attribute: Male/Female) |
+
+---
+
+## Repository Structure
+
+```
+fair-hpo-tabular-benchmark/
+├── docs/
+│   ├── manuscript_draft.md      # Paper (Markdown)
+│   ├── manuscript_draft.tex     # Paper (LaTeX)
+│   ├── manuscript.bib           # BibTeX bibliography
+│   ├── figures/                 # Publication-ready figures
+│   └── dataset_registry.md     # Dataset DOIs and licenses
+├── results/
+│   └── publication/             # Final CSVs: metrics, stats, outliers
+├── src/                         # Benchmark source code
+├── FINAL_AUDIT.md              # Final audit summary report
+└── README.md
+```
 
 ---
 
 ## Experimental Design
 
-The benchmark is designed around controlled and reproducible evaluation.
-
-The experimental protocol includes:
-
-* Nested cross-validation
-* Fixed outer folds
-* Fixed inner folds
-* Equal objective-evaluation budgets for stochastic optimizers
-* Controlled random seeds
-* Primary and secondary classification metrics
-* Fairness metrics where sensitive attributes are configured
-* Runtime measurements
-* Convergence analysis
-* Statistical analysis
-
-The use of nested cross-validation is intended to separate hyperparameter selection from final model evaluation and reduce optimistic performance estimates.
-
-Equal evaluation budgets are used for stochastic optimization methods to support a fair comparison of optimization efficiency rather than simply comparing methods with unequal computational opportunities.
+- **Nested cross-validation**: 5-fold outer / 3-fold inner loop
+- **Equal budget**: 20 iterations per HPO run to ensure fair comparison
+- **Objective**: Balanced Accuracy (inner loop)
+- **Seeds**: Fixed for reproducibility
+- **Statistical tests**: Paired Wilcoxon signed-rank tests with Cohen's d_z effect sizes
 
 ---
 
-## Completed Benchmark Matrix
+## Research Objective
 
-The currently completed benchmark evaluates:
+The primary goal is to provide rigorous, multi-dimensional empirical evidence on how HPO strategy and model choice jointly affect performance, fairness, and runtime — rather than assuming any optimizer is universally superior.
 
-| Component | Configurations |
-| --- | --- |
-| Datasets | WDBC, Adult, Bank Marketing |
-| Models | Random Forest, XGBoost |
-| HPO methods | Random Search, Bayesian Optimization |
-| Outer folds | 5 |
-| Total fold-level experiments | 60 |
-| Experiment groups | 12 |
-| Predictive metrics | Accuracy, Balanced Accuracy, F1, ROC AUC |
-| Fairness metrics | Demographic Parity Difference, Equal Opportunity Difference |
-| Efficiency metric | Runtime |
+### Planned Extensions
 
-The completed result set contains:
-
-**3 datasets × 2 models × 2 optimizers × 5 outer folds = 60 experiments.**
-
-The 60 records form 12 experimental groups:
-
-**3 datasets × 2 models × 2 optimizers = 12 groups.**
-
-Each experimental group contains five outer-fold results.
+- Metaheuristic optimizers: **Genetic Algorithm (GA)**, **Particle Swarm Optimization (PSO)**, **Differential Evolution (DE)**
+- **Fairness-constrained HPO**: optimizing jointly for performance and group fairness
+- Full convergence trajectory logging
 
 ---
 
-## Evaluation Framework
+## Datasets
 
-The benchmark evaluates HPO methods from multiple perspectives.
+All datasets are sourced from the UCI Machine Learning Repository:
 
-### Predictive Performance
+| Dataset | Instances | Features | Task |
+|---|---|---|---|
+| [WDBC](https://doi.org/10.24432/C5DW2B) | 569 | 30 | Cancer diagnosis |
+| [Adult](https://doi.org/10.24432/C5XW20) | 48,842 | 14 | Income prediction |
+| [Bank Marketing](https://doi.org/10.24432/C5K306) | 45,211 | 16 | Deposit subscription |
 
-The following classification metrics are evaluated:
+---
 
-* Accuracy
-* Balanced Accuracy
-* F1
-* ROC AUC
+## Citation
 
-These metrics provide complementary views of predictive performance, particularly where class imbalance may make raw accuracy insufficient.
+If this work is useful, please cite:
 
-### Fairness
-
-Where a sensitive attribute is configured, the benchmark evaluates:
-
-* Demographic Parity Difference
-* Equal Opportunity Difference
-
-The current fairness-applicable dataset is **Adult**, using `sex` as the configured sensitive attribute.
-
-WDBC and Bank Marketing currently have no configured sensitive attributes.
-
-Their recorded `0.0` fairness values therefore **must not be interpreted as evidence of absence of bias**. For those datasets, fairness metrics are treated as not applicable because no sensitive attribute is configured for evaluation.
-
-### Computational Cost
-
-Runtime is recorded in seconds for each outer-fold experiment.
-
-Runtime distributions are analyzed using summary statistics and an interquartile-range (IQR) outlier rule:
-
-```text
-IQR = Q3 - Q1
-Upper outlier threshold = Q3 + 1.5 × IQR
+```bibtex
+@misc{azam2026hpofair,
+  author    = {Moazzam Azam},
+  title     = {An Empirical Audit of Performance, Fairness, and Compute Cost in Tabular Hyperparameter Optimization},
+  year      = {2026},
+  url       = {https://github.com/Moazzam9/fair-hpo-tabular-benchmark}
+}
+```
