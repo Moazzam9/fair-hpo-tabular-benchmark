@@ -2,7 +2,8 @@
 
 **Author:** Moazzam Azam  
 **Affiliation:** Independent Researcher  
-**Email:** moazzamkk13@gmail.com
+**Email:** moazzamkk13@gmail.com  
+**DOI:** https://doi.org/10.5281/zenodo.22090994
 
 **Date:** August 2026
 

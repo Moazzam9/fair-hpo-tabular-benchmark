@@ -397,14 +397,19 @@ All benchmark outputs are stored under `results/publication/`:
 
 If this work is useful to your research, please cite:
 
+**APA:**
+> Azam, M. (2026). *An Empirical Audit of Performance, Fairness, and Compute Cost in Tabular Hyperparameter Optimization*. Zenodo. https://doi.org/10.5281/zenodo.22090994
+
+**BibTeX:**
 ```bibtex
 @misc{azam2026hpofair,
   author    = {Moazzam Azam},
   title     = {An Empirical Audit of Performance, Fairness, and Compute Cost
                in Tabular Hyperparameter Optimization},
   year      = {2026},
-  publisher = {GitHub},
-  url       = {https://github.com/Moazzam9/fair-hpo-tabular-benchmark}
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.22090994},
+  url       = {https://doi.org/10.5281/zenodo.22090994}
 }
 ```
 
